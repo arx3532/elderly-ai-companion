@@ -1,7 +1,7 @@
-##elderly-ai-companion
+## Elderly-ai-companion
 Emotion Aware LLM for Elderly Support
 
-##Project Setup Guide
+## Project Setup Guide
 This guide will walk you through setting up your development environment for this project.
 
 1. Create a Python Virtual Environment
@@ -16,7 +16,7 @@ python -m venv venv
 # On macOS/Linux:
 source venv/bin/activate
 
-## 2. Download and Set Up Ollama
+# 2. Download and Set Up Ollama
 Ollama is required to run local language models.
 
 Download Ollama: Visit the official Ollama website and download the appropriate installer for your operating system:
@@ -30,14 +30,14 @@ ollama --version
 
 You should see the installed Ollama version.
 
-## 3. Pull the gemma3:4b Model
+# 3. Pull the gemma3:4b Model
 Once Ollama is installed, you can pull the gemma3:4b model.
 
 ollama pull gemma3:4b
 
 This command will download the model to your local machine.
 
-## 4. Download Project Data from Google Drive
+# 4. Download Project Data from Google Drive
 A folder containing necessary project data needs to be downloaded from Google Drive.
 
 Open the Google Drive link:
