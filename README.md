@@ -4,16 +4,16 @@ Emotion Aware LLM for Elderly Support
 # Project Setup Guide
 This guide will walk you through setting up your development environment for this project.
 
-1. Create a Python Virtual Environment
+## 1. Create a Python Virtual Environment
 It's highly recommended to use a virtual environment to manage project dependencies.
 
-## Create a virtual environment named 'venv'
+### Create a virtual environment named 'venv'
 python -m venv venv
 
-# Activate the virtual environment
-# On Windows:
+### Activate the virtual environment
+### On Windows:
 .\venv\Scripts\activate
-# On macOS/Linux:
+### On macOS/Linux:
 source venv/bin/activate
 
 ## 2. Download and Set Up Ollama
