@@ -26,25 +26,31 @@ def setup_workflow():
     workflow.add_node("memory", memory_agent)
     workflow.add_node("tone_setter", tone_agent)
     workflow.add_node("conversation", conversation_agent)
-
+    
+    # First sequence: memory -> tone_setter -> conversation -> memory -> router
+    workflow.add_edge("memory", "tone_setter", condition=lambda state: state["is_initial_retrieval"])
+    workflow.add_edge("tone_setter", "conversation", condition=lambda state: state["is_initial_retrieval"])
+    workflow.add_edge("conversation", "memory", condition=lambda state: state["is_initial_retrieval"])
+    workflow.add_edge("memory", "router", condition=lambda state: state["is_initial_retrieval"])
+    
     # Router decides which agent to call next
     workflow.add_conditional_edges(
         "router",
         lambda state: state["next_agent"],
         {
-            "memory": "memory", 
-            "tone": "tone_setter", 
-            "conversation": "conversation", 
+            "memory": "memory",
+            "tone": "tone_setter",
+            "conversation": "conversation",
             "END": END
         }
     )
     
-    # All agents return to router for next decision
-    workflow.add_edge("memory", "router")
-    workflow.add_edge("tone_setter", "router")
-    workflow.add_edge("conversation", "router")
-
-    workflow.set_entry_point("router")
+    # Normal flow after initial retrieval
+    workflow.add_edge("memory", "router", condition=lambda state: not state["is_initial_retrieval"])
+    workflow.add_edge("tone_setter", "router", condition=lambda state: not state["is_initial_retrieval"])
+    workflow.add_edge("conversation", "router", condition=lambda state: not state["is_initial_retrieval"])
+    
+    workflow.set_entry_point("memory")
     return workflow.compile()
 
 app = setup_workflow()
@@ -52,7 +58,7 @@ app = setup_workflow()
 def run_companion(user_input: str):
     state: AgentState = {
         "user_input": user_input,
-        "user_id": "user_123",
+        "user_id": "",
         "user_profile": {},
         "response": "",
         "tone": "",
@@ -80,14 +86,30 @@ def run_companion(user_input: str):
         raise
 
 if __name__ == "__main__":
-    print("AI Companion: Hello! How can I help you today?")
+    try:
+        _, _, response = run_companion("")
+        print(f"AI Companion: {response}")
+    except Exception as e:
+        print(f"AI Companion: Hello! Something went wrong with my greeting: {e}")
+        print("AI Companion: How can I help you today?")
+    
     while True:
-        user_input = input("You: ")
-        if user_input.lower() in ["exit", "quit"]:
-            print("AI Companion: Goodbye!")
-            break
         try:
+            user_input = input("You: ").strip()
+            
+            if user_input.lower() in ["exit", "quit", "bye"]:
+                print("AI Companion: Goodbye!")
+                break
+                
+            if not user_input:
+                print("AI Companion: Please say something!")
+                continue
+                
             profile, tone, response = run_companion(user_input)
             print(f"AI Companion: {response}")
+            
+        except KeyboardInterrupt:
+            print("\nAI Companion: Goodbye!")
+            break
         except Exception as e:
             print(f"AI Companion: Sorry, something went wrong: {e}")
