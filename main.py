@@ -55,18 +55,7 @@ def setup_workflow():
 
 app = setup_workflow()
 
-def run_companion(user_input: str):
-    state: AgentState = {
-        "user_input": user_input,
-        "user_id": "",
-        "user_profile": {},
-        "response": "",
-        "tone": "",
-        "next_agent": "",
-        "current_agent": "",
-        "is_initial_retrieval": True,
-        "conversation_history": []
-    }
+def run_companion(state):
     
     logger.info(f"Initial state: {state}")
     
@@ -85,29 +74,45 @@ def run_companion(user_input: str):
         logger.error(f"Workflow error: {e}")
         raise
 
+
 if __name__ == "__main__":
+    state: AgentState = {
+        "user_input": "",
+        "user_id": "",
+        "user_profile": {},
+        "response": "",
+        "tone": "",
+        "next_agent": "",
+        "current_agent": "",
+        "is_initial_retrieval": True,
+        "conversation_history": []
+    }
+
     try:
-        _, _, response = run_companion("")
-        print(f"AI Companion: {response}")
+        state = app.invoke(state)
+        print(f"AI Companion: {state['response']}")
+        state["is_initial_retrieval"] = False 
     except Exception as e:
         print(f"AI Companion: Hello! Something went wrong with my greeting: {e}")
         print("AI Companion: How can I help you today?")
-    
+
     while True:
         try:
             user_input = input("You: ").strip()
-            
+
             if user_input.lower() in ["exit", "quit", "bye"]:
                 print("AI Companion: Goodbye!")
                 break
-                
+
             if not user_input:
                 print("AI Companion: Please say something!")
                 continue
-                
-            profile, tone, response = run_companion(user_input)
-            print(f"AI Companion: {response}")
-            
+
+            state["user_input"] = user_input
+            state["next_agent"] = ""  
+            state = app.invoke(state)  
+            print(f"AI Companion: {state['response']}")
+
         except KeyboardInterrupt:
             print("\nAI Companion: Goodbye!")
             break
